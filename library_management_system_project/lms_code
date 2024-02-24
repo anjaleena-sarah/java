@@ -1,1 +1,185 @@
-j
+import java.sql.*;
+import java.util.Scanner;
+
+public class LibraryManagementSystem {
+
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/library_mgmt";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "";
+
+    public static void main(String[] args) {
+        try {
+            Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            System.out.println("Connected to database.");
+
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                System.out.println("\n1. Display available books");
+                System.out.println("2. Borrow a book");
+                System.out.println("3. Return a book");
+                System.out.println("4. Add a book");
+                System.out.println("5. Remove a book");
+                System.out.println("6. Exit");
+                System.out.print("Enter your choice: ");
+                int choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        displayAvailableBooks(connection);
+                        break;
+                    case 2:
+                        borrowBook(connection, scanner);
+                        break;
+                    case 3:
+                        returnBook(connection, scanner);
+                        break;
+                    case 4:
+                        addBook(connection, scanner);
+                        break;
+                    case 5:
+                        removeBook(connection, scanner);
+                        break;
+                    case 6:
+                        System.out.println("Exiting...");
+                        connection.close();
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Database connection error: " + e.getMessage());
+        }
+    }
+
+    private static void displayAvailableBooks(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM books");
+        System.out.println("\nAvailable books:");
+        while (resultSet.next()) {
+            System.out.println(
+                    resultSet.getInt("book_id") + " | " +
+                            resultSet.getString("book_name") + " | " +
+                            resultSet.getString("book_author") + " | " +
+                            resultSet.getDouble("price") + " | " +
+                            resultSet.getDate("published_date")
+            );
+        }
+        resultSet.close();
+        statement.close();
+    }
+
+    private static void borrowBook(Connection connection, Scanner scanner) throws SQLException {
+        System.out.print("Enter the ID of the book you want to borrow: ");
+        int bookId = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        System.out.print("Enter your name: ");
+        String borrowerName = scanner.nextLine();
+
+        // Get current date
+        Date borrowedDate = new Date(System.currentTimeMillis());
+
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO borrowed_books (book_id, book_name, borrowed_date, borrowed_person) VALUES (?, ?, ?, ?)");
+        preparedStatement.setInt(1, bookId);
+
+        // Get book details for the borrowed book
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT book_name FROM books WHERE book_id = " + bookId);
+        if (resultSet.next()) {
+            preparedStatement.setString(2, resultSet.getString("book_name"));
+        } else {
+            System.out.println("Book not found.");
+            return;
+        }
+        resultSet.close();
+        statement.close();
+
+        preparedStatement.setDate(3, borrowedDate);
+        preparedStatement.setString(4, borrowerName);
+
+        int rowsAffected = preparedStatement.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Book borrowed successfully.");
+        } else {
+            System.out.println("Failed to borrow book.");
+        }
+
+        preparedStatement.close();
+    }
+
+
+    private static void returnBook(Connection connection, Scanner scanner) throws SQLException {
+        System.out.print("Enter the ID of the book you want to return: ");
+        int bookId = scanner.nextInt();
+
+        // Get current date
+        Date returnDate = new Date(System.currentTimeMillis());
+
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE borrowed_books SET return_date = ? WHERE book_id = ?");
+        preparedStatement.setDate(1, returnDate);
+        preparedStatement.setInt(2, bookId);
+
+        int rowsAffected = preparedStatement.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Book returned successfully.");
+        } else {
+            System.out.println("Failed to return book. Either the book was not borrowed or the ID is incorrect.");
+        }
+
+        preparedStatement.close();
+    }
+    
+
+    private static void addBook(Connection connection, Scanner scanner) throws SQLException {
+        scanner.nextLine(); // Consume newline
+        System.out.print("Enter book name: ");
+        String bookName = scanner.nextLine();
+        System.out.print("Enter author name: ");
+        String authorName = scanner.nextLine();
+        System.out.print("Enter price: ");
+        double price = scanner.nextDouble();
+        System.out.print("Enter published date (YYYY-MM-DD): ");
+        String publishedDateStr = scanner.next();
+
+        try {
+            Date publishedDate = Date.valueOf(publishedDateStr);
+
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO books (book_name, book_author, price, published_date) VALUES (?, ?, ?, ?)");
+            preparedStatement.setString(1, bookName);
+            preparedStatement.setString(2, authorName);
+            preparedStatement.setDouble(3, price);
+            preparedStatement.setDate(4, publishedDate);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Book added successfully.");
+            } else {
+                System.out.println("Failed to add book.");
+            }
+
+            preparedStatement.close();
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid date format. Please use the format YYYY-MM-DD.");
+        }
+    }
+
+    private static void removeBook(Connection connection, Scanner scanner) throws SQLException {
+        System.out.print("Enter the ID of the book you want to remove: ");
+        int bookId = scanner.nextInt();
+
+        PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM books WHERE book_id = ?");
+        preparedStatement.setInt(1, bookId);
+
+        int rowsAffected = preparedStatement.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Book removed successfully.");
+        } else {
+            System.out.println("Failed to remove book. Either the book ID is incorrect or the book is borrowed.");
+        }
+
+        preparedStatement.close();
+    }
+}
+
