@@ -54,8 +54,10 @@ public class LibraryManagementSystem {
     }
 
     private static void displayAvailableBooks(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM books WHERE book_id NOT IN (SELECT book_id FROM borrowed_books)");
+        PreparedStatement preparedStatement = connection.prepareStatement(
+            "SELECT * FROM books WHERE book_id NOT IN (SELECT book_id FROM borrowed_books WHERE return_date IS NULL)"
+        );
+        ResultSet resultSet = preparedStatement.executeQuery();
         System.out.println("\nAvailable books:");
         while (resultSet.next()) {
             System.out.println(
@@ -67,7 +69,7 @@ public class LibraryManagementSystem {
             );
         }
         resultSet.close();
-        statement.close();
+        preparedStatement.close();
     }
 
     private static void borrowBook(Connection connection, Scanner scanner) throws SQLException {
@@ -76,14 +78,17 @@ public class LibraryManagementSystem {
         scanner.nextLine(); // Consume newline
 
         // Check if the book is available
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM borrowed_books WHERE book_id = " + bookId);
+        PreparedStatement preparedStatement = connection.prepareStatement(
+            "SELECT * FROM borrowed_books WHERE book_id = ? AND return_date IS NULL"
+        );
+        preparedStatement.setInt(1, bookId);
+        ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
             System.out.println("This book is already borrowed.");
             return;
         }
         resultSet.close();
-        statement.close();
+        preparedStatement.close();
 
         System.out.print("Enter your name: ");
         String borrowerName = scanner.nextLine();
@@ -91,20 +96,25 @@ public class LibraryManagementSystem {
         // Get current date
         Date borrowedDate = new Date(System.currentTimeMillis());
 
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO borrowed_books (book_id, book_name, borrowed_date, borrowed_person) VALUES (?, ?, ?, ?)");
+        preparedStatement = connection.prepareStatement(
+            "INSERT INTO borrowed_books (book_id, book_name, borrowed_date, borrowed_person) VALUES (?, ?, ?, ?)"
+        );
         preparedStatement.setInt(1, bookId);
 
         // Get book details for the borrowed book
-        statement = connection.createStatement();
-        resultSet = statement.executeQuery("SELECT book_name FROM books WHERE book_id = " + bookId);
-        if (resultSet.next()) {
-            preparedStatement.setString(2, resultSet.getString("book_name"));
+        PreparedStatement bookDetailsStatement = connection.prepareStatement(
+            "SELECT book_name FROM books WHERE book_id = ?"
+        );
+        bookDetailsStatement.setInt(1, bookId);
+        ResultSet bookDetailsResultSet = bookDetailsStatement.executeQuery();
+        if (bookDetailsResultSet.next()) {
+            preparedStatement.setString(2, bookDetailsResultSet.getString("book_name"));
         } else {
             System.out.println("Book not found.");
             return;
         }
-        resultSet.close();
-        statement.close();
+        bookDetailsResultSet.close();
+        bookDetailsStatement.close();
 
         preparedStatement.setDate(3, borrowedDate);
         preparedStatement.setString(4, borrowerName);
@@ -126,18 +136,15 @@ public class LibraryManagementSystem {
         // Get current date
         Date returnDate = new Date(System.currentTimeMillis());
 
-        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE borrowed_books SET return_date = ? WHERE book_id = ?");
+        PreparedStatement preparedStatement = connection.prepareStatement(
+            "UPDATE borrowed_books SET return_date = ? WHERE book_id = ? AND return_date IS NULL"
+        );
         preparedStatement.setDate(1, returnDate);
         preparedStatement.setInt(2, bookId);
 
         int rowsAffected = preparedStatement.executeUpdate();
         if (rowsAffected > 0) {
             System.out.println("Book returned successfully.");
-            // Mark the book as available
-            PreparedStatement updateStatement = connection.prepareStatement("DELETE FROM borrowed_books WHERE book_id = ?");
-            updateStatement.setInt(1, bookId);
-            updateStatement.executeUpdate();
-            updateStatement.close();
         } else {
             System.out.println("Failed to return book. Either the book was not borrowed or the ID is incorrect.");
         }
@@ -159,7 +166,9 @@ public class LibraryManagementSystem {
         try {
             Date publishedDate = Date.valueOf(publishedDateStr);
 
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO books (book_name, book_author, price, published_date) VALUES (?, ?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT INTO books (book_name, book_author, price, published_date) VALUES (?, ?, ?, ?)"
+            );
             preparedStatement.setString(1, bookName);
             preparedStatement.setString(2, authorName);
             preparedStatement.setDouble(3, price);
@@ -182,7 +191,9 @@ public class LibraryManagementSystem {
         System.out.print("Enter the ID of the book you want to remove: ");
         int bookId = scanner.nextInt();
 
-        PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM books WHERE book_id = ?");
+        PreparedStatement preparedStatement = connection.prepareStatement(
+            "DELETE FROM books WHERE book_id = ? AND book_id NOT IN (SELECT book_id FROM borrowed_books WHERE return_date IS NULL)"
+        );
         preparedStatement.setInt(1, bookId);
 
         int rowsAffected = preparedStatement.executeUpdate();
