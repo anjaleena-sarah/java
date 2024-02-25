@@ -55,7 +55,7 @@ public class LibraryManagementSystem {
 
     private static void displayAvailableBooks(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM books");
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM books WHERE book_id NOT IN (SELECT book_id FROM borrowed_books)");
         System.out.println("\nAvailable books:");
         while (resultSet.next()) {
             System.out.println(
@@ -75,6 +75,16 @@ public class LibraryManagementSystem {
         int bookId = scanner.nextInt();
         scanner.nextLine(); // Consume newline
 
+        // Check if the book is available
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM borrowed_books WHERE book_id = " + bookId);
+        if (resultSet.next()) {
+            System.out.println("This book is already borrowed.");
+            return;
+        }
+        resultSet.close();
+        statement.close();
+
         System.out.print("Enter your name: ");
         String borrowerName = scanner.nextLine();
 
@@ -85,8 +95,8 @@ public class LibraryManagementSystem {
         preparedStatement.setInt(1, bookId);
 
         // Get book details for the borrowed book
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT book_name FROM books WHERE book_id = " + bookId);
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery("SELECT book_name FROM books WHERE book_id = " + bookId);
         if (resultSet.next()) {
             preparedStatement.setString(2, resultSet.getString("book_name"));
         } else {
@@ -109,7 +119,6 @@ public class LibraryManagementSystem {
         preparedStatement.close();
     }
 
-
     private static void returnBook(Connection connection, Scanner scanner) throws SQLException {
         System.out.print("Enter the ID of the book you want to return: ");
         int bookId = scanner.nextInt();
@@ -124,13 +133,17 @@ public class LibraryManagementSystem {
         int rowsAffected = preparedStatement.executeUpdate();
         if (rowsAffected > 0) {
             System.out.println("Book returned successfully.");
+            // Mark the book as available
+            PreparedStatement updateStatement = connection.prepareStatement("DELETE FROM borrowed_books WHERE book_id = ?");
+            updateStatement.setInt(1, bookId);
+            updateStatement.executeUpdate();
+            updateStatement.close();
         } else {
             System.out.println("Failed to return book. Either the book was not borrowed or the ID is incorrect.");
         }
 
         preparedStatement.close();
     }
-    
 
     private static void addBook(Connection connection, Scanner scanner) throws SQLException {
         scanner.nextLine(); // Consume newline
@@ -182,4 +195,3 @@ public class LibraryManagementSystem {
         preparedStatement.close();
     }
 }
-
