@@ -1,0 +1,29 @@
+import java.io.*;
+
+public class Main {
+    public static void main(String args[]) {
+        DataInputStream din;
+        int a, b, c;
+        din = new DataInputStream(System.in);
+
+        try 
+        {
+            System.out.println("Enter the first number: ");
+            a = Integer.parseInt(din.readLine());
+
+            System.out.println("Enter the second number: ");
+            b = Integer.parseInt(din.readLine());
+
+            System.out.println("Enter the third number: ");
+            c = Integer.parseInt(din.readLine());
+
+            int min = (a < b) ? ((a < c) ? a : c) : ((b < c) ? b : c);
+
+            System.out.println("Minimum of " + a + ", " + b + ", and " + c + " is: " + min);
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error" + e);
+        }
+    }
+}
