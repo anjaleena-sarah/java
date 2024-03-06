@@ -1,0 +1,41 @@
+import java.io.*;
+public class Main {
+    public static void main(String args[]) {
+        DataInputStream din;
+        int a, b, c;
+        din = new DataInputStream(System.in);
+
+        try 
+        {
+            System.out.println("Enter the first number: ");
+            a = Integer.parseInt(din.readLine());
+
+            System.out.println("Enter the second number: ");
+            b = Integer.parseInt(din.readLine());
+
+            System.out.println("Enter the third number: ");
+            c = Integer.parseInt(din.readLine());
+
+            int max;
+
+            if (a >= b && a >= c) 
+            {
+                max = a;
+            } 
+            else if (b >= a && b >= c) 
+            {
+                max = b;
+            } 
+            else 
+            {
+                max = c;
+            }
+
+            System.out.println("Maximum of " + a + ", " + b + ", and " + c + " is: " + max);
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error" + e);
+        }
+    }
+}
