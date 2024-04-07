@@ -1,0 +1,16 @@
+public class Main {
+    public static void main(String[] args) {
+        int a = 5;
+        int b = 3;
+        int bitwiseAnd = a & b;
+        System.out.println("Bitwise AND: " + bitwiseAnd);
+        int bitwiseOr = a | b; 
+        System.out.println("Bitwise OR: " + bitwiseOr);
+        int bitwiseXor = a ^ b; 
+        System.out.println("Bitwise XOR: " + bitwiseXor);
+        int leftShiftResult = a << 1; 
+        System.out.println("Left shift: " + leftShiftResult);
+        int rightShiftResult = b >> 1;
+        System.out.println("Right shift: " + rightShiftResult);
+    }
+} 
