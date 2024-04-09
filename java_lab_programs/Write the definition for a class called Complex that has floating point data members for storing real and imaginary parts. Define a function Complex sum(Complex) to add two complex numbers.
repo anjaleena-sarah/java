@@ -1,0 +1,42 @@
+public class Complex {
+    private double real;
+    private double imaginary;
+    public Complex() {
+        this.real = 0;
+        this.imaginary = 0;
+    }
+    public Complex(double real, double imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+    public Complex sum(Complex other) {
+        double realSum = this.real + other.real;
+        double imaginarySum = this.imaginary + other.imaginary;
+        return new Complex(realSum, imaginarySum);
+    }
+    public double getReal() {
+        return real;
+    }
+    public void setReal(double real) {
+        this.real = real;
+    }
+    public double getImaginary() {
+        return imaginary;
+    }
+    public void setImaginary(double imaginary) 
+   {
+        this.imaginary = imaginary;
+    }
+    public void display() {
+        System.out.println("Complex Number: " + real + " + " + imaginary + "i");
+    }
+
+    public static void main(String[] args) {
+        Complex num1 = new Complex(2, 3);
+        Complex num2 = new Complex(1, 4);
+
+        Complex sum = num1.sum(num2);
+        System.out.print("Sum: ");
+        sum.display();
+    }
+}
