@@ -1,0 +1,35 @@
+public class TwoSix {
+    public static void main(String[] args) {
+        Time t1 = new Time(2, 30);
+        Time t2 = new Time(1, 45);
+        Time t3 = t1.sum(t2);
+        System.out.println("Time 1: " + t1.getHours() + " hours " + t1.getMinutes() + " minutes");
+        System.out.println("Time 2: " + t2.getHours() + " hours " + t2.getMinutes() + " minutes");
+        System.out.println("Sum: " + t3.getHours() + " hours " + t3.getMinutes() + " minutes");
+    }
+}
+class Time {
+    private int hours;
+    private int minutes;  
+    public Time(int hours, int minutes) {
+        this.hours = hours;
+        this.minutes = minutes;
+    }
+    public Time sum(Time t) 
+    {
+        int totalMinutes = this.hours * 60 + this.minutes + t.hours * 60 + t.minutes;
+        int newHours = totalMinutes / 60;
+        int newMinutes = totalMinutes % 60;
+        return new Time(newHours, newMinutes);
+
+
+    }
+    public int getHours() 
+   {
+        return hours;
+    }
+    public int getMinutes() 
+   {
+        return minutes;
+    }
+}
