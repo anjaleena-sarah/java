@@ -7,7 +7,7 @@ class Account
     private String accountType;
     private double balance;
     // Constructor with parameters for initializing name, account number, and initial amount
-    public Account(String accountHolderName, int accountNumber, double initialAmount) {
+    public Account(String accountHolderName, int accountNumber, double initialAmount) { 
         this.accountHolderName = accountHolderName;
         this.accountNumber = accountNumber;
         this.balance = initialAmount;
