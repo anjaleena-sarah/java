@@ -1,0 +1,47 @@
+import java.util.*;
+class MyThread extends Thread 
+{
+    String type;
+    public MyThread(String t) 
+   {
+        type = t;
+    }
+    public synchronized void run() 
+   {
+        if (type.equals("odd")) 
+        {
+            for (int i = 1; i <= 100; i++) 
+             {
+                if (i % 2 != 0) {
+                    System.out.print(i + " ");
+                }
+            }
+        } 
+         else 
+        {
+            for (int i = 1; i <= 100; i++) 
+            {
+                if (i % 2 == 0) 
+              {
+                    System.out.print(i + " ");
+                }
+            }
+        }
+    }
+}
+public class Main {
+    public static void main(String args[]) {
+        MyThread t1, t2;
+        t1 = new MyThread("odd");
+        t2 = new MyThread("even");
+        t1.start();
+        t2.start();
+        try {
+            t1.join();
+            t2.join();
+        } 
+         catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+}  
