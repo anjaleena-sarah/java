@@ -11,7 +11,7 @@ class Complex {
         float sumReal = this.real + other.real;
         float sumImaginary = this.imaginary + other.imaginary;
         return new Complex(sumReal, sumImaginary);
-    }
+    } 
     // Function to display the complex number
     void display() {
         System.out.println(real + " + " + imaginary + "i");
