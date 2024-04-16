@@ -7,7 +7,7 @@ public class Copyfile {
         Scanner s = new Scanner(System.in);
         FileOutputStream fout;
         FileInputStream fin1, fin2;
-        try {
+        try { 
             System.out.println("Enter The Name of the Source file1: ");
             String sname1 = s.nextLine();
             fin1 = new FileInputStream(sname1);
