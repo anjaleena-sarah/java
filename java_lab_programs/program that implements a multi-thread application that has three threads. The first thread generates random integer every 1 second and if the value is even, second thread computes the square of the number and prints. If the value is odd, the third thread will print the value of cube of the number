@@ -1,0 +1,75 @@
+import java.util.Random;
+
+class RandomNumberGenerator implements Runnable {
+    private final int delay; // Delay in milliseconds
+    private final EvenNumberProcessor evenProcessor;
+    private final OddNumberProcessor oddProcessor;
+
+    public RandomNumberGenerator(int delay, EvenNumberProcessor evenProcessor, OddNumberProcessor oddProcessor) {
+        this.delay = delay;
+        this.evenProcessor = evenProcessor;
+        this.oddProcessor = oddProcessor;
+    }
+
+    @Override
+    public void run() {
+        Random random = new Random();
+        try {
+            while (true) {
+                int randomNumber = random.nextInt(100); // Generate a random number between 0 and 99
+                System.out.println("Generated number: " + randomNumber);
+
+                if (randomNumber % 2 == 0) {
+                    evenProcessor.processEvenNumber(randomNumber);
+                } else {
+                    oddProcessor.processOddNumber(randomNumber);
+                }
+
+                Thread.sleep(delay);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class EvenNumberProcessor implements Runnable {
+    @Override
+    public void run() {
+        // Dummy implementation
+    }
+
+    public void processEvenNumber(int number) {
+        int square = number * number;
+        System.out.println("Square of " + number + " is: " + square);
+    }
+}
+
+class OddNumberProcessor implements Runnable {
+    @Override
+    public void run() {
+        // Dummy implementation
+    }
+
+    public void processOddNumber(int number) {
+        int cube = number * number * number;
+        System.out.println("Cube of " + number + " is: " + cube);
+    }
+}
+
+public class MultiThreadApplication {
+    public static void main(String[] args) {
+        EvenNumberProcessor evenProcessor = new EvenNumberProcessor();
+        OddNumberProcessor oddProcessor = new OddNumberProcessor();
+
+        Thread evenThread = new Thread(evenProcessor);
+        Thread oddThread = new Thread(oddProcessor);
+
+        RandomNumberGenerator randomNumberGenerator = new RandomNumberGenerator(1000, evenProcessor, oddProcessor);
+        Thread generatorThread = new Thread(randomNumberGenerator);
+
+        evenThread.start();
+        oddThread.start();
+        generatorThread.start();
+    }
+}
