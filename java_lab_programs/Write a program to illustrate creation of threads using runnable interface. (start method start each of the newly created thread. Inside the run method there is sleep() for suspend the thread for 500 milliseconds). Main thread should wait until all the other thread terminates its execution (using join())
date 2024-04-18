@@ -1,0 +1,50 @@
+class MyRunnable implements Runnable {
+    private final String threadName;
+
+    public MyRunnable(String threadName) {
+        this.threadName = threadName;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Thread " + threadName + " started.");
+
+        try {
+            // Suspend the thread for 500 milliseconds
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Thread " + threadName + " finished.");
+    }
+}
+
+public class ThreadExample {
+    public static void main(String[] args) {
+        // Create three Runnable instances
+        Runnable runnable1 = new MyRunnable("Thread-1");
+        Runnable runnable2 = new MyRunnable("Thread-2");
+        Runnable runnable3 = new MyRunnable("Thread-3");
+
+        // Create three Thread instances and start them
+        Thread thread1 = new Thread(runnable1);
+        Thread thread2 = new Thread(runnable2);
+        Thread thread3 = new Thread(runnable3);
+
+        thread1.start();
+        thread2.start();
+        thread3.start();
+
+        // Wait for all threads to complete
+        try {
+            thread1.join();
+            thread2.join();
+            thread3.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All threads have completed execution.");
+    }
+}
