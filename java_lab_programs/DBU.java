@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-class DBU {
+class DBU { 
 
    public static void main(String args[]) {
 	Connection con;
