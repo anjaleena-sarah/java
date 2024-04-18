@@ -1,0 +1,67 @@
+class Account {
+    private int balance = 0;
+
+    public synchronized void deposit(int amount) {
+        System.out.println(Thread.currentThread().getName() + " is going to deposit " + amount);
+        balance += amount;
+        System.out.println("Deposit successful. New balance: " + balance);
+    }
+
+    public synchronized void withdraw(int amount) {
+        System.out.println(Thread.currentThread().getName() + " is going to withdraw " + amount);
+        if (balance >= amount) {
+            balance -= amount;
+            System.out.println("Withdrawal successful. New balance: " + balance);
+        } else {
+            System.out.println("Insufficient balance. Withdrawal failed.");
+        }
+    }
+}
+
+class DepositThread extends Thread {
+    private Account account;
+    private int amount;
+
+    public DepositThread(Account account, int amount) {
+        this.account = account;
+        this.amount = amount;
+    }
+
+    @Override
+    public void run() {
+        account.deposit(amount);
+    }
+}
+
+class WithdrawThread extends Thread {
+    private Account account;
+    private int amount;
+
+    public WithdrawThread(Account account, int amount) {
+        this.account = account;
+        this.amount = amount;
+    }
+
+    @Override
+    public void run() {
+        account.withdraw(amount);
+    }
+}
+
+public class BankingExample {
+    public static void main(String[] args) {
+        Account account = new Account();
+
+        // Create deposit threads
+        DepositThread depositThread1 = new DepositThread(account, 1000);
+        DepositThread depositThread2 = new DepositThread(account, 2000);
+
+        // Create withdraw thread
+        WithdrawThread withdrawThread = new WithdrawThread(account, 500);
+
+        // Start threads
+        depositThread1.start();
+        depositThread2.start();
+        withdrawThread.start();
+    }
+}
