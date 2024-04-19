@@ -1,6 +1,6 @@
 import java.util.Scanner;
 class Account 
-{
+{ 
     private String accountHolderName;
     private int accountNumber;
     private String address;
