@@ -4,7 +4,7 @@ public class FilecountOut {
     public static void main(String args[]) {
         FileInputStream fin;
         Scanner s = new Scanner(System.in);
-        try {
+        try { 
             System.out.println("Enter the name of the file");// a.txt
             String fname = s.nextLine();
             fin = new FileInputStream(fname);
