@@ -1,5 +1,5 @@
 import java.io.*;  
-class DSer
+class DSer 
 {  
 	public static void main(String args[])throws Exception
 	{  
