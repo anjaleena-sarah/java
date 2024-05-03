@@ -7,7 +7,7 @@ class CreateTable
         Connection con;
         Statement st;
         try 
-       {
+       { 
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp_db?characterEncoding=utf8",
                     "root", "");
