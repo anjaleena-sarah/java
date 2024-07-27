@@ -6,7 +6,7 @@ import java.util.*;
 public class Library_management extends JFrame implements ActionListener {
     private JLabel label1, label2, label3, label4, label5, label6, label7;
     private JTextField textField1, textField2, textField3, textField4, textField5, textField6, textField7;
-    private JButton addButton, viewButton, editButton, deleteButton, clearButton,exitButton;
+    private JButton addButton, viewButton, editButton, deleteButton, clearButton,exitButton; 
     private JPanel panel;
     private ArrayList<String[]> books = new ArrayList<String[]>();
 
